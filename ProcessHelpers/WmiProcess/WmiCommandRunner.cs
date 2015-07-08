@@ -4,12 +4,12 @@ using System.Management;
 
 namespace ProcessHelpers
 {
-    public class WmiService
+    public class WmiCommandRunner
     {
         private readonly ConnectionOptions connectionOptions;
         private readonly string hostName;
 
-        public WmiService(ConnectionOptions connectionOptions, string hostName)
+        public WmiCommandRunner(ConnectionOptions connectionOptions, string hostName)
         {
             this.connectionOptions = connectionOptions;
             this.hostName = hostName;
@@ -35,19 +35,6 @@ namespace ProcessHelpers
             }
 
             return processClass.InvokeMethod("Create", parameters, null);
-        }
-    }
-
-    public static class ManagementBaseObjectExtensions
-    {
-        public static WmiReturnValue GetReturnValue(this ManagementBaseObject managementBase)
-        {
-            return (WmiReturnValue)(UInt32)managementBase["ReturnValue"];
-        }
-
-        public static UInt32 GetPid(this ManagementBaseObject managementBase)
-        {
-            return (UInt32)managementBase["processId"];
         }
     }
 }

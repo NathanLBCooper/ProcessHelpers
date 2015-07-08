@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,16 +14,17 @@ namespace ProcessHelpersTests
         [TestMethod]
         public void TestMethod1()
         {
-            //using (var notepad = new Process(Environment.SystemDirectory + "\\notepad.exe"))
+            //using (var notepad = new SystemProcess(Environment.SystemDirectory + "\\notepad.exe", new LeaveRunningSystemProcessTerminator()))
             //{
             //    notepad.Start();
             //}
 
-
-            //using (var notepad = new Process(System.Diagnostics.Process.GetProcessesByName("Firefox").First()))
-            //{
-            //    notepad.Terminate();
-            //}
+            var process = new Process { StartInfo = new ProcessStartInfo(Environment.SystemDirectory + "\\notepad.exe") };
+            process.Start();
+            using (var notepad = new SystemProcess(process))
+            {
+                notepad.Stop();
+            }
         }
 
         [TestMethod]

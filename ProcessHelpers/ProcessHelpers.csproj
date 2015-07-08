@@ -41,12 +41,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IProcess.cs" />
-    <Compile Include="Process.cs" />
+    <Compile Include="SystemProcess\Terminators\ISystemProcessTerminator.cs" />
+    <Compile Include="SystemProcess\Terminators\KillSystemProcessTerminator.cs" />
+    <Compile Include="SystemProcess\Terminators\LeaveRunningSystemProcessTerminator.cs" />
+    <Compile Include="SystemProcess\Terminators\StopSystemProcessTerminator.cs" />
+    <Compile Include="SystemProcess\Terminators\StopWithTimeoutSystemProcessTerminator.cs" />
+    <Compile Include="WmiProcess\Terminators\IWmiProcessTerminator.cs" />
+    <Compile Include="SystemProcess\SystemProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PsExecProcess.cs" />
-    <Compile Include="WmiProcess.cs" />
-    <Compile Include="WmiReturnValue.cs" />
-    <Compile Include="WmiService.cs" />
+    <Compile Include="PsExecProcess\PsExecProcess.cs" />
+    <Compile Include="WmiProcess\Terminators\KillWmiTerminator.cs" />
+    <Compile Include="WmiProcess\Terminators\LeaveOpenWmiTerminator.cs" />
+    <Compile Include="WmiProcess\ManagementBaseObjectExtensions.cs" />
+    <Compile Include="WmiProcess\WmiProcess.cs" />
+    <Compile Include="WmiProcess\WmiReturnValue.cs" />
+    <Compile Include="WmiProcess\WmiCommandRunner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
