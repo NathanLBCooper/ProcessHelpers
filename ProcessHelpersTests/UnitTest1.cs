@@ -43,7 +43,7 @@ namespace ProcessHelpersTests
         [TestMethod]
         public void TestMethod2andabit()
         {
-            using (var notepad = new WmiProcess2(Environment.SystemDirectory + "\\notepad.exe", "localhost", x => x.Kill()))
+            using (var notepad = new WmiOwningProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost", x => x.Kill()))
             {
                 notepad.Start();
             }

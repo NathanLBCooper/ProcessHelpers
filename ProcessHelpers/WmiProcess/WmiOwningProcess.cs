@@ -91,7 +91,7 @@ namespace ProcessHelpers
 
             if (disposing)
             {
-                // Free managed
+                this.process.Dispose();
             }
             // Free unmanaged
             if (this.IsProcessRunning)
@@ -101,7 +101,7 @@ namespace ProcessHelpers
             this.disposed = true;
         }
 
-        ~WmiProcess2()
+        ~WmiOwningProcess()
         {
             this.Dispose(false);
         }

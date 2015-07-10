@@ -46,7 +46,7 @@
     <Compile Include="PsExecProcess\PsExecProcess.cs" />
     <Compile Include="WmiProcess\ManagementBaseObjectExtensions.cs" />
     <Compile Include="WmiProcess\WmiProcess.cs" />
-    <Compile Include="WmiProcess\WmiProcess2.cs" />
+    <Compile Include="WmiProcess\WmiOwningProcess.cs" />
     <Compile Include="WmiProcess\WmiReturnValue.cs" />
     <Compile Include="WmiProcess\WmiCommandRunner.cs" />
   </ItemGroup>
