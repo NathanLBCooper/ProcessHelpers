@@ -5,12 +5,27 @@ namespace ProcessHelpers
     /// <summary>
     /// Startable and Stoppable Process
     /// </summary>
+    public interface IStoppableProcess : IStoppable, IProcess
+    {
+    }
+
     public interface IProcess : IDisposable
     {
         /// <summary>
         /// Starts the process.
         /// </summary>
         void Start();
+        /// <summary>
+        /// Gets a value indicating whether this instance is process running.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is process running; otherwise, <c>false</c>.
+        /// </value>
+        bool IsProcessRunning { get; }
+    }
+
+    public interface IStoppable
+    {
         /// <summary>
         /// Sends a close message to the process
         /// Kill() is called if unsupported.
@@ -26,12 +41,5 @@ namespace ProcessHelpers
         /// Immediately stops the process.
         /// </summary>
         void Kill();
-        /// <summary>
-        /// Gets a value indicating whether this instance is process running.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is process running; otherwise, <c>false</c>.
-        /// </value>
-        bool IsProcessRunning { get; }
     }
 }

@@ -5,11 +5,11 @@ namespace ProcessHelpers
     /// <summary>
     /// Startable and Stoppable Process using System.Diagnostics.Process
     /// </summary>
-    public class SystemProcess : IProcess
+    public class SystemProcess : IStoppableProcess
     {
         private readonly System.Diagnostics.Process process;
+        private readonly Action<IStoppable> disposeAction;
         private bool disposed = false;
-        private readonly ISystemProcessTerminator disposeStrategy;
 
         /// <summary>
         /// Gets a value indicating whether this instance is process running.
@@ -37,9 +37,9 @@ namespace ProcessHelpers
         /// Initializes a new instance of the <see cref="SystemProcess" /> class.
         /// </summary>
         /// <param name="executablePath">The executable path.</param>
-        /// <param name="disposeStrategy">The dispose strategy.</param>
-        public SystemProcess(string executablePath, ISystemProcessTerminator disposeStrategy = null)
-            : this(new System.Diagnostics.Process() { StartInfo = new System.Diagnostics.ProcessStartInfo(executablePath) }, disposeStrategy)
+        /// <param name="disposeAction">The dispose action.</param>
+        public SystemProcess(string executablePath, Action<IStoppable> disposeAction = null)
+            : this(new System.Diagnostics.Process() { StartInfo = new System.Diagnostics.ProcessStartInfo(executablePath) }, disposeAction)
         {
         }
 
@@ -48,13 +48,12 @@ namespace ProcessHelpers
         /// Use in conjunction with System.Diagnostic.Process helpers to find processes by name, id etc
         /// </summary>
         /// <param name="process">The process.</param>
-        /// <param name="disposeStrategy">The dispose strategy.</param>
+        /// <param name="disposeAction">The dispose action.</param>
         public SystemProcess(
-            System.Diagnostics.Process process,
-            ISystemProcessTerminator disposeStrategy = null)
+            System.Diagnostics.Process process, Action<IStoppable> disposeAction = null)
         {
-            this.disposeStrategy = disposeStrategy ?? new StopWithTimeoutSystemProcessTerminator(500); ;
             this.process = process;
+            this.disposeAction = disposeAction ?? (x => { });
         }
 
         /// <summary>
@@ -64,7 +63,9 @@ namespace ProcessHelpers
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Start()
         {
+            this.ThrowIfDisposed();
             this.CanStartCheck();
+
             this.process.Start();
         }
 
@@ -75,8 +76,10 @@ namespace ProcessHelpers
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Stop()
         {
+            this.ThrowIfDisposed();
             this.CanTerminateCheck();
-            this.Terminate(new StopSystemProcessTerminator());
+
+            process.CloseMainWindow();
         }
 
         /// <summary>
@@ -87,8 +90,14 @@ namespace ProcessHelpers
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Stop(int maxExitWaitTime)
         {
+            this.ThrowIfDisposed();
             this.CanTerminateCheck();
-            this.Terminate(new StopWithTimeoutSystemProcessTerminator(maxExitWaitTime));
+
+            process.CloseMainWindow();
+            if (!process.WaitForExit(maxExitWaitTime))
+            {
+                process.Kill();
+            }
         }
 
         /// <summary>
@@ -98,26 +107,14 @@ namespace ProcessHelpers
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Kill()
         {
+            this.ThrowIfDisposed();
             this.CanTerminateCheck();
-            this.Terminate(new KillSystemProcessTerminator());
-        }
 
-        private void Terminate(ISystemProcessTerminator terminator)
-        {
-            terminator.Terminate(this.process);
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException("SystemProcess Object has been disposed");
-            }
+            process.Kill();
         }
 
         private void CanTerminateCheck()
         {
-            this.ThrowIfDisposed();
             if (!this.IsProcessRunning)
             {
                 throw new InvalidOperationException("Cannot Terminate Non-Running Process.");
@@ -126,10 +123,17 @@ namespace ProcessHelpers
 
         private void CanStartCheck()
         {
-            this.ThrowIfDisposed();
             if (this.IsProcessRunning)
             {
                 throw new InvalidOperationException("Cannot Start Running Process.");
+            }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException("SystemProcess Object has been disposed");
             }
         }
 
@@ -150,7 +154,7 @@ namespace ProcessHelpers
             // Free unmanaged
             if (this.IsProcessRunning)
             {
-                this.disposeStrategy.Terminate(this.process);
+                this.disposeAction(this);
             }
             this.process.Dispose();
             this.disposed = true;

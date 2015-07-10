@@ -15,12 +15,12 @@ namespace ProcessHelpers
             this.hostName = hostName;
         }
 
-        public ManagementBaseObject StartProcess(string command)
+        public ManagementBaseObject RunCommand(string command)
         {
-            return this.StartProcess(new Dictionary<string, string>() { { "CommandLine", command } });
+            return this.RunCommand(new Dictionary<string, string>() { { "CommandLine", command } });
         }
 
-        public ManagementBaseObject StartProcess(Dictionary<string, string> inArgs)
+        public ManagementBaseObject RunCommand(Dictionary<string, string> inArgs)
         {
             // WMI: Use Win32_Process in root\cimv2 namespace. 
             var processClass = new ManagementClass(

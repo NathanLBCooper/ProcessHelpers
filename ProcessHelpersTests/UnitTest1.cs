@@ -14,11 +14,6 @@ namespace ProcessHelpersTests
         [TestMethod]
         public void TestMethod1()
         {
-            //using (var notepad = new SystemProcess(Environment.SystemDirectory + "\\notepad.exe", new LeaveRunningSystemProcessTerminator()))
-            //{
-            //    notepad.Start();
-            //}
-
             var process = new Process { StartInfo = new ProcessStartInfo(Environment.SystemDirectory + "\\notepad.exe") };
             process.Start();
             using (var notepad = new SystemProcess(process))
@@ -28,9 +23,27 @@ namespace ProcessHelpersTests
         }
 
         [TestMethod]
+        public void TestMethod1andabit()
+        {
+            using (var notepad = new SystemProcess(Environment.SystemDirectory + "\\notepad.exe", x => x.Kill()))
+            {
+                notepad.Start();
+            }
+        }
+
+        [TestMethod]
         public void TestMethod2()
         {
             using (var notepad = new WmiProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost"))
+            {
+                notepad.Start();
+            }
+        }
+
+        [TestMethod]
+        public void TestMethod2andabit()
+        {
+            using (var notepad = new WmiProcess2(Environment.SystemDirectory + "\\notepad.exe", "localhost", x => x.Kill()))
             {
                 notepad.Start();
             }
