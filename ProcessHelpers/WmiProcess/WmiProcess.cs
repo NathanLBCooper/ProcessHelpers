@@ -116,6 +116,9 @@ namespace ProcessHelpers
             this.IsProcessRunning = false;
         }
 
+        /// <summary>
+        /// This is a no-op that will leave the object in a still useable state
+        /// </summary>
         public void Dispose()
         {
             // No-op

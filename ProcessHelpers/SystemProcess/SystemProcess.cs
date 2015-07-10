@@ -64,7 +64,7 @@ namespace ProcessHelpers
         public void Start()
         {
             this.ThrowIfDisposed();
-            this.CanStartCheck();
+            this.ThrowIfCannotStart();
 
             this.process.Start();
         }
@@ -77,7 +77,7 @@ namespace ProcessHelpers
         public void Stop()
         {
             this.ThrowIfDisposed();
-            this.CanTerminateCheck();
+            this.ThrowIfCannotTerminate();
 
             process.CloseMainWindow();
         }
@@ -91,7 +91,7 @@ namespace ProcessHelpers
         public void Stop(int maxExitWaitTime)
         {
             this.ThrowIfDisposed();
-            this.CanTerminateCheck();
+            this.ThrowIfCannotTerminate();
 
             process.CloseMainWindow();
             if (!process.WaitForExit(maxExitWaitTime))
@@ -108,12 +108,12 @@ namespace ProcessHelpers
         public void Kill()
         {
             this.ThrowIfDisposed();
-            this.CanTerminateCheck();
+            this.ThrowIfCannotTerminate();
 
             process.Kill();
         }
 
-        private void CanTerminateCheck()
+        private void ThrowIfCannotTerminate()
         {
             if (!this.IsProcessRunning)
             {
@@ -121,7 +121,7 @@ namespace ProcessHelpers
             }
         }
 
-        private void CanStartCheck()
+        private void ThrowIfCannotStart()
         {
             if (this.IsProcessRunning)
             {
@@ -137,6 +137,10 @@ namespace ProcessHelpers
             }
         }
 
+        /// <summary>
+        /// Disposes of underlying process object.
+        /// Makes decision whether and how to stop process according to disposeAction
+        /// </summary>
         public void Dispose()
         {
             this.Dispose(true);
