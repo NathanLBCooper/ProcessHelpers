@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Management;
 
 namespace ProcessHelpers
 {
     /// <summary>
-    /// Specialisation of WmiProcess to provide process stopping on dispose
+    /// Specialisation of PsToolsProcess to provide process stopping on dispose
     /// </summary>
-    public class WmiOwningProcess : IStoppableProcess
+    public class PsToolsOwningProcess : IStoppableProcess
     {
-        private readonly WmiProcess process;
+        private readonly PsToolsProcess process;
         private readonly Action<IStoppable> disposalAction;
         private bool disposed = false;
 
@@ -24,15 +23,29 @@ namespace ProcessHelpers
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WmiOwningProcess"/> class.
+        /// Initializes a new instance of the <see cref="PsToolsProcess" /> class.
         /// </summary>
-        /// <param name="startCommand">The start command, typically the exe path (local, not network path) plus any arguments</param>
-        /// <param name="hostName">Name of the host.</param>
+        /// <param name="executablePath">The executable path.</param>
+        /// <param name="hostname">The hostname.</param>
+        /// <param name="config">The configuration for using the PSTools</param>
         /// <param name="disposalAction">The disposal action.</param>
-        /// <param name="wmiConnectionOptions">The WMI connection options.</param>
-        public WmiOwningProcess(string startCommand, string hostname, Action<IStoppable> disposalAction, ConnectionOptions wmiConnectionOptions = null)
+        public PsToolsOwningProcess(string executablePath, string hostname, IPsToolsConfig config, Action<IStoppable> disposalAction)
         {
-            this.process = new WmiProcess(startCommand, hostname, wmiConnectionOptions);
+            this.process = new PsToolsProcess(executablePath, hostname, config);
+            this.disposalAction = disposalAction;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PsToolsProcess" /> class.
+        /// </summary>
+        /// <param name="executablePath">The executable path.</param>
+        /// <param name="hostname">The hostname.</param>
+        /// <param name="credentials">The credentials.</param>
+        /// <param name="config">The configuration for using the PSTools</param>
+        /// <param name="disposalAction">The disposal action.</param>
+        public PsToolsOwningProcess(string executablePath, string hostname, Credentials credentials, IPsToolsConfig config, Action<IStoppable> disposalAction)
+        {
+            this.process = new PsToolsProcess(executablePath, hostname, credentials, config);
             this.disposalAction = disposalAction;
         }
 
@@ -49,7 +62,7 @@ namespace ProcessHelpers
 
         /// <summary>
         /// Sends a close message to the process.
-        /// Soft close is unsupported for WMI, calls Kill()
+        /// Soft close is unsupported for PSTools, calls Kill()
         /// </summary>
         /// <exception cref="System.InvalidOperationException">Cannot Terminate Non-Running Process.</exception>
         /// <exception cref="System.Exception">WMI command did not successfully complete</exception>
@@ -61,11 +74,11 @@ namespace ProcessHelpers
 
         /// <summary>
         /// Sends a close message to the process. Immediately stops the process if it has not closed after maxExitWaitTime.
-        /// Soft close is unsupported for WMI, calls Kill()
+        /// Soft close is unsupported for PSTools, calls Kill()
         /// </summary>
         /// <param name="maxExitWaitTime">The maximum exit wait time.</param>
         /// <exception cref="System.InvalidOperationException">Cannot Terminate Non-Running Process.</exception>
-        /// <exception cref="System.Exception">WMI command did not successfully complete</exception>
+        /// <exception cref="PsExecCommandException">PSTools command did not successfully complete</exception>
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Stop(int maxExitWaitTime)
         {
@@ -76,7 +89,7 @@ namespace ProcessHelpers
         /// Immediately stops the associated process.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">Cannot Terminate Non-Running Process.</exception>
-        /// <exception cref="System.Exception">WMI command did not successfully complete</exception>
+        /// <exception cref="PsExecCommandException">PSTools command did not successfully complete</exception>
         /// <exception cref="System.ObjectDisposedException">Object Has Been Disposed</exception>
         public void Kill()
         {
@@ -108,7 +121,7 @@ namespace ProcessHelpers
             this.disposed = true;
         }
 
-        ~WmiOwningProcess()
+        ~PsToolsOwningProcess()
         {
             this.Dispose(false);
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -18,7 +18,8 @@ namespace ProcessHelpersTests
             process.Start();
             using (var notepad = new SystemProcess(process))
             {
-                notepad.Stop();
+                Thread.Sleep(500);
+                notepad.Kill();
             }
         }
 
@@ -27,6 +28,7 @@ namespace ProcessHelpersTests
         {
             using (var notepad = new SystemProcess(Environment.SystemDirectory + "\\notepad.exe", x => x.Kill()))
             {
+                Thread.Sleep(500);
                 notepad.Start();
             }
         }
@@ -36,6 +38,7 @@ namespace ProcessHelpersTests
         {
             using (var notepad = new WmiProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost"))
             {
+                Thread.Sleep(500);
                 notepad.Start();
             }
         }
@@ -45,6 +48,7 @@ namespace ProcessHelpersTests
         {
             using (var notepad = new WmiOwningProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost", x => x.Kill()))
             {
+                Thread.Sleep(500);
                 notepad.Start();
             }
         }
@@ -52,10 +56,36 @@ namespace ProcessHelpersTests
         [TestMethod]
         public void TestMethod3()
         {
-            //using (var notepad = new PsToolsProcess(@"c:\program files\internet explorer\iexplore.exe", "localhost"))
-            //{
-            //    notepad.Start();
-            //}
+            var config = new PsToolsConfig()
+            {
+                ExecPath = @"C:\PSTools\PsExec.exe",
+                KillPath = @"C:\PSTools\PsKill.exe",
+                ToolTimeout = TimeSpan.FromMilliseconds(10000)
+            };
+
+            using (var notepad = new PsToolsProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost", config))
+            {
+                notepad.Start();
+                Thread.Sleep(500);
+                notepad.Kill();
+            }
+        }
+
+        [TestMethod]
+        public void TestMethod3andabit()
+        {
+            var config = new PsToolsConfig()
+            {
+                ExecPath = @"C:\PSTools\PsExec.exe",
+                KillPath = @"C:\PSTools\PsKill.exe",
+                ToolTimeout = TimeSpan.FromMilliseconds(10000)
+            };
+
+            using (var notepad = new PsToolsOwningProcess(Environment.SystemDirectory + "\\notepad.exe", "localhost", config, x => x.Kill()))
+            {
+                notepad.Start();
+                Thread.Sleep(500);
+            }
         }
     }
 }
